@@ -290,6 +290,15 @@ function nextQuestion() {
   return best;
 }
 
+// Clear every selection and answer, and go back to the first picture.
+function resetAll() {
+  Object.assign(state, { sel: [], answers: {}, order: [], skipped: new Set(), forceNext: null, keepGoing: false, showAll: false });
+  userOpen.clear();
+  document.querySelectorAll(".sym").forEach(b => b.setAttribute("aria-pressed", "false"));
+  setSlide(0);
+  renderBench();
+}
+
 /* ---------- bench: one question at a time + ranked causes ---------- */
 function renderBench() {
   if (!state.sel.length) {
@@ -315,11 +324,7 @@ function renderBench() {
         <div id="copyfall"></div>
       </div>
     </div>`;
-  $("#reset").addEventListener("click", () => {
-    Object.assign(state, { sel: [], answers: {}, order: [], skipped: new Set(), forceNext: null, keepGoing: false });
-    document.querySelectorAll(".sym").forEach(b => b.setAttribute("aria-pressed", "false"));
-    paintCarousel(); renderBench(); $("#s1").scrollIntoView({ behavior: "smooth" });
-  });
+  $("#reset").addEventListener("click", () => { resetAll(); $("#s1").scrollIntoView({ behavior: "smooth" }); });
   $("#copy").addEventListener("click", copySummary);
   renderQuestion(); renderHistory(); renderCauses();
 }
@@ -508,6 +513,7 @@ paintThemeButtons();
 /* ---------- welcome screen and app view ---------- */
 function route() {
   const inApp = location.hash === "#western-blot";
+  if (!inApp) resetAll(); // going back to the start screen begins a fresh session
   $("#welcome").hidden = inApp;
   $(".wrap").hidden = !inApp;
   window.scrollTo(0, 0);
