@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Bench Bee</title>
+<meta name="description" content="Western blot troubleshooting: pick the blot that looks like yours, answer a few questions, get the likely causes and what to check first.">
+<meta name="theme-color" content="#EEF1F4" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0F141A" media="(prefers-color-scheme: dark)">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Bench Bee">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+Condensed:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<section class="welcome" id="welcome" aria-labelledby="wtitle">
+  <button class="theme-btn" type="button" aria-label="Switch theme"></button>
+  <div class="welcome-inner">
+    <svg viewBox="0 0 60 60" class="welcome-logo" aria-hidden="true"><defs><clipPath id="beebody2"><ellipse cx="26" cy="34" rx="14" ry="10.5"/></clipPath></defs><polygon points="30,2 55,16 55,44 30,58 5,44 5,16" style="fill:#FBEEC8"/><path class="buzz" d="M41.5 31 q3 -4 6 -2 t5 0" fill="none" style="stroke:#221D19" stroke-width="1.6" stroke-linecap="round" stroke-dasharray="0.1 3"/><g class="bob"><ellipse cx="23.5" cy="21.5" rx="4.6" ry="6.2" transform="rotate(-30 23.5 21.5)" style="fill:#FFFFFF;stroke:#221D19" fill-opacity=".7" stroke-width="1.3"/><ellipse cx="29.5" cy="21.5" rx="6.2" ry="4.2" transform="rotate(-22 29.5 21.5)" style="fill:#FFFFFF;stroke:#221D19" stroke-width="1.3"/><g clip-path="url(#beebody2)"><rect x="10" y="22" width="32" height="24" style="fill:#F2B400"/><rect x="10" y="22" width="9.5" height="24" style="fill:#221D19"/><rect x="24.5" y="22" width="3.8" height="24" style="fill:#221D19"/><rect x="32" y="22" width="3.8" height="24" style="fill:#221D19"/></g><circle cx="16.5" cy="31.5" r="1.2" style="fill:#F4EEDF"/></g></svg>
+    <h1 id="wtitle">Bench <span>Bee</span></h1>
+    <p class="tag">A little buzz of help at the bench.</p>
+    <div class="tech-pick" role="group" aria-label="Choose a technique">
+      <button class="tp go" id="go-wb" type="button"><span class="tp-text"><strong>Western blot</strong></span><span class="arrow" aria-hidden="true">→</span></button>
+      <button class="tp" type="button" disabled><span class="tp-text"><strong>qPCR</strong><small>Coming soon</small></span></button>
+      <button class="tp" type="button" disabled><span class="tp-text"><strong>Cell culture</strong><small>Coming soon</small></span></button>
+    </div>
+    <p class="fine">Pick the pictures that match your result, answer a few quick questions, and get the likely causes in order.</p>
+  </div>
+</section>
+
+<div class="wrap" hidden>
+  <header class="appbar">
+    <a class="homelink" href="#" aria-label="Back to start"><svg viewBox="0 0 60 60" aria-hidden="true"><defs><clipPath id="beebody"><ellipse cx="26" cy="34" rx="14" ry="10.5"/></clipPath></defs><polygon points="30,2 55,16 55,44 30,58 5,44 5,16" style="fill:#FBEEC8"/><path d="M41.5 31 q3 -4 6 -2 t5 0" fill="none" style="stroke:#221D19" stroke-width="1.6" stroke-linecap="round" stroke-dasharray="0.1 3"/><ellipse cx="23.5" cy="21.5" rx="4.6" ry="6.2" transform="rotate(-30 23.5 21.5)" style="fill:#FFFFFF;stroke:#221D19" fill-opacity=".7" stroke-width="1.3"/><ellipse cx="29.5" cy="21.5" rx="6.2" ry="4.2" transform="rotate(-22 29.5 21.5)" style="fill:#FFFFFF;stroke:#221D19" stroke-width="1.3"/><g clip-path="url(#beebody)"><rect x="10" y="22" width="32" height="24" style="fill:#F2B400"/><rect x="10" y="22" width="9.5" height="24" style="fill:#221D19"/><rect x="24.5" y="22" width="3.8" height="24" style="fill:#221D19"/><rect x="32" y="22" width="3.8" height="24" style="fill:#221D19"/></g><circle cx="16.5" cy="31.5" r="1.2" style="fill:#F4EEDF"/></svg><span class="appname">Bench <span>Bee</span></span></a>
+    <span class="tech-chip">Western blot</span>
+    <button class="theme-btn" type="button" aria-label="Switch theme"></button>
+  </header>
+
+  <section aria-labelledby="s1">
+    <div class="sec-head">
+      <div class="headrow"><h2 id="s1">What does your blot look like?</h2><button class="viewbtn" type="button" id="viewbtn"></button></div>
+      <span class="label">Step 1 · pick one or more</span>
+      <p>Blots often have more than one problem. Select every picture that matches yours.</p>
+    </div>
+    <div class="grid" id="grid"></div>
+  </section>
+
+  <section aria-labelledby="s2" id="benchSec">
+    <div class="sec-head">
+      <h2 id="s2">Narrow it down</h2>
+      <span class="label">Step 2 · ranking updates as you answer</span>
+    </div>
+    <div id="bench"></div>
+  </section>
+
+  <footer>
+    <p>General guidance from standard Western blot practice and vendor troubleshooting guides. Always check your antibody datasheet and your lab's own protocols, and ask someone senior before changing a validated method.</p>
+    <p>Why Bench Bee? Bumblebees shake pollen loose by vibrating flowers at high frequency. It's called buzz pollination, or sonication, which anyone who has sonicated a lysate will recognise.</p>
+    <p>Sources used to build the problem list:</p>
+    <ul>
+      <li><a href="https://www.thermofisher.com/uk/en/home/life-science/protein-biology/protein-biology-learning-center/protein-gel-electrophoresis-information/western-blot-troubleshooting.html" target="_blank" rel="noopener">Thermo Fisher: Western blot troubleshooting</a></li>
+      <li><a href="https://www.bio-rad.com/en-us/applications-technologies/western-blot-doctor-protein-band-appearance-problems" target="_blank" rel="noopener">Bio-Rad: band appearance problems</a></li>
+      <li><a href="https://www.bio-rad.com/en-us/applications-technologies/western-blot-doctor-protein-band-size-pattern-problems" target="_blank" rel="noopener">Bio-Rad: band size and pattern problems</a></li>
+      <li><a href="https://biocatalog.licor.com/bio/applications/quantitative-western-blots/troubleshooting" target="_blank" rel="noopener">LI-COR: troubleshooting quantitative Western blots</a></li>
+      <li><a href="https://www.abcam.com/en-us/technical-resources/troubleshooting/misshapen-uneven-bands-in-western-blot" target="_blank" rel="noopener">Abcam: misshapen and uneven bands</a></li>
+      <li><a href="https://ptglab.com/support/western-blot-protocol/western-blot-troubleshooting-why-does-the-observed-protein-molecular-weight-mw-differ-from-the-calculated-one" target="_blank" rel="noopener">Proteintech: observed vs calculated molecular weight</a></li>
+    </ul>
+  </footer>
+</div>
+
+<script src="data/western-blot.js" defer></script>
+<script src="app.js" defer></script>
+</body>
+</html>
