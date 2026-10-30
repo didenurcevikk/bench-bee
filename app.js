@@ -490,6 +490,8 @@ function openSaveForm() {
   const name = existing ? existing.name : `${selected().map(s => s.name).join(" + ")} · ${new Date().toLocaleDateString(undefined, { day: "numeric", month: "short" })}`;
   $("#saveform").innerHTML = `
     <form class="saveform" id="saveFormEl">
+      <span class="sf-label">Photo <span>(optional, so you remember what the blot looked like)</span></span>
+      <div class="sf-photo" id="sfPhoto"></div>
       <label for="saveName">Name</label>
       <input id="saveName" type="text" maxlength="80" value="${esc(name)}">
       <label for="saveNote">Note <span>(optional)</span></label>
@@ -498,7 +500,20 @@ function openSaveForm() {
       <input id="saveFix" type="text" maxlength="200" placeholder="e.g. Fresh ECL, or diluted the secondary 1:10,000" value="${existing ? esc(existing.fix || "") : ""}">
       <div class="actions"><button class="btn save" type="submit">${existing ? "Update" : "Save"}</button><button class="btn ghost" type="button" id="saveCancel">Cancel</button></div>
     </form>`;
-  $("#saveName").focus();
+  let formPhoto = state.photo || (existing && existing.photo) || null;
+  const paintPhoto = () => {
+    $("#sfPhoto").innerHTML = formPhoto
+      ? `<img src="${formPhoto}" alt="Photo for this troubleshoot"><div class="sf-actions"><label class="linkbtn" for="sfFile">Replace</label><button class="linkbtn" type="button" id="sfRemove">Remove</button></div>`
+      : `<div class="sf-actions"><label class="btn ghost" for="sfCam">Take photo</label><label class="btn ghost" for="sfFile">Choose photo</label></div>`;
+    $("#sfPhoto").insertAdjacentHTML("beforeend", `<input type="file" id="sfCam" accept="image/*" capture="environment" hidden><input type="file" id="sfFile" accept="image/*" hidden>`);
+    ["#sfCam", "#sfFile"].forEach(id => $(id).addEventListener("change", async e => {
+      const f = e.target.files[0]; if (!f) return;
+      try { formPhoto = await shrinkPhoto(f); } catch (err) { $("#toast").textContent = "That file couldn't be opened as an image. Try a JPEG or PNG."; }
+      paintPhoto();
+    }));
+    const rm = $("#sfRemove"); if (rm) rm.addEventListener("click", () => { formPhoto = null; paintPhoto(); });
+  };
+  paintPhoto();
   $("#saveCancel").addEventListener("click", () => { $("#saveform").innerHTML = ""; });
   $("#saveFormEl").addEventListener("submit", e => {
     e.preventDefault();
@@ -514,16 +529,38 @@ function openSaveForm() {
       answers: { ...state.answers },
       order: [...state.order],
       top: live[0] ? live[0].t : "",
-      photo: state.photo || null
+      photo: formPhoto
     };
     const list = loadSaved().filter(s => s.id !== entry.id);
     list.unshift(entry);
     if (!storeSaved(list)) { $("#toast").textContent = "This browser won't let the app save. Try copying for your notebook instead."; return; }
     state.savedId = entry.id;
+    state.photo = formPhoto;
     $("#saveform").innerHTML = "";
     $("#save").textContent = "Update saved";
     $("#toast").textContent = "Saved. Find it under Saved troubleshoots.";
     paintSavedCount();
+  });
+}
+
+// Shrink a photo to a small JPEG so many saved troubleshoots fit in the browser's storage.
+function shrinkPhoto(file, max = 640) {
+  return new Promise((resolve, reject) => {
+    const r = new FileReader();
+    r.onerror = reject;
+    r.onload = () => {
+      const img = new Image();
+      img.onerror = reject;
+      img.onload = () => {
+        const k = Math.min(1, max / Math.max(img.naturalWidth, img.naturalHeight));
+        const c = document.createElement("canvas");
+        c.width = Math.round(img.naturalWidth * k); c.height = Math.round(img.naturalHeight * k);
+        c.getContext("2d").drawImage(img, 0, 0, c.width, c.height);
+        resolve(c.toDataURL("image/jpeg", 0.75));
+      };
+      img.src = r.result;
+    };
+    r.readAsDataURL(file);
   });
 }
 
