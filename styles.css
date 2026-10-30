@@ -258,3 +258,30 @@ textarea.copybox { width: 100%; min-height: 140px; font-family: var(--mono); fon
 .si-note { font-size: 14px; padding: 8px 12px; border-left: 3px solid var(--accent-fill); background: var(--bg); white-space: pre-wrap; overflow-wrap: anywhere; }
 .si-actions { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
 .si-confirm { font-size: 14px; font-weight: 500; }
+
+/* ---------- photo pre-check ---------- */
+.photo-box { margin-bottom: 16px; }
+.pb-empty, .pb-work, .pb-saved { background: var(--surface); border: 1px dashed var(--accent-fill); border-radius: var(--r); padding: 16px; }
+.pb-empty { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 20px; }
+.pb-text { display: grid; gap: 2px; min-width: 0; flex: 1 1 260px; }
+.pb-text strong { font-family: var(--display); font-size: 18px; font-weight: 600; }
+.pb-text span { color: var(--muted); font-size: 14px; }
+.pb-buttons { display: flex; gap: 8px; flex-wrap: wrap; }
+.pb-buttons .btn { display: inline-block; cursor: pointer; }
+.pb-work { display: grid; gap: 12px; border-style: solid; border-color: var(--line); }
+.pb-hint { font-size: 14px; color: var(--muted); }
+.pb-hint b { color: var(--ink); }
+#pbCanvas { width: 100%; max-width: 100%; height: auto; border-radius: 8px; touch-action: none; cursor: crosshair; background: var(--chip); }
+.pb-findings { display: grid; gap: 10px; padding: 14px; border-radius: 10px; background: var(--accent-soft); }
+.pb-findings ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.pb-findings label { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 2px 10px; cursor: pointer; }
+.pb-findings input { margin-top: 4px; width: 18px; height: 18px; accent-color: var(--accent-fill); }
+.pb-findings label b { font-weight: 600; }
+.pb-findings label span { grid-column: 2; font-size: 14px; color: var(--muted); }
+.pb-findings p { font-size: 14px; }
+.pb-note { font-size: 13px !important; color: var(--muted); }
+.pb-error { color: var(--accent); font-size: 14px; margin-top: 8px; }
+.pb-saved { display: flex; gap: 14px; align-items: center; border-style: solid; border-color: var(--line); }
+.pb-saved img { width: 120px; max-width: 40%; border-radius: 8px; flex: none; }
+.si-photo { width: 100%; max-height: 180px; object-fit: cover; border-radius: 8px; }
+.pb-findings .maybe { font-style: normal; font-family: var(--mono); font-size: 11px; text-transform: uppercase; letter-spacing: .05em; padding: 1px 6px; border-radius: 999px; background: var(--chip); color: var(--muted); }

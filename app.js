@@ -292,8 +292,9 @@ function nextQuestion() {
 
 // Clear every selection and answer, and go back to the first picture.
 function resetAll() {
-  Object.assign(state, { sel: [], answers: {}, order: [], skipped: new Set(), forceNext: null, keepGoing: false, showAll: false, savedId: null });
+  Object.assign(state, { sel: [], answers: {}, order: [], skipped: new Set(), forceNext: null, keepGoing: false, showAll: false, savedId: null, photo: null });
   userOpen.clear();
+  if (typeof clearPhoto === "function") clearPhoto();
   document.querySelectorAll(".sym").forEach(b => b.setAttribute("aria-pressed", "false"));
   setSlide(0);
   renderBench();
@@ -503,7 +504,8 @@ function openSaveForm() {
       sel: [...state.sel],
       answers: { ...state.answers },
       order: [...state.order],
-      top: live[0] ? live[0].t : ""
+      top: live[0] ? live[0].t : "",
+      photo: state.photo || null
     };
     const list = loadSaved().filter(s => s.id !== entry.id);
     list.unshift(entry);
@@ -530,6 +532,7 @@ function renderSaved() {
   $("#savedList").innerHTML = list.map(s => {
     const names = s.sel.map(id => (SYMPTOMS.find(x => x.id === id) || {}).name).filter(Boolean);
     return `<article class="saved-item" data-id="${s.id}">
+      ${s.photo ? `<img class="si-photo" src="${s.photo}" alt="Blot photo saved with this troubleshoot">` : ""}
       <div class="si-top"><h3>${esc(s.name)}</h3><span class="si-date">${fmtDate(s.date)}</span></div>
       <div class="chosen">${names.map(n => `<span class="chip">${n}</span>`).join("")}</div>
       <p class="si-lead">${s.top ? `Top cause: <b>${esc(s.top)}</b> · ` : ""}${s.order.length} answer${s.order.length === 1 ? "" : "s"}</p>
@@ -560,7 +563,8 @@ function restoreSaved(s) {
   {
     const known = s.sel.filter(sid => SYMPTOMS.some(x => x.id === sid));
     const order = s.order.filter(q => Q[q] && s.answers[q] !== undefined);
-    Object.assign(state, { sel: known, answers: Object.fromEntries(order.map(q => [q, s.answers[q]])), order, skipped: new Set(), forceNext: null, keepGoing: false, showAll: false, savedId: s.id });
+    Object.assign(state, { sel: known, answers: Object.fromEntries(order.map(q => [q, s.answers[q]])), order, skipped: new Set(), forceNext: null, keepGoing: false, showAll: false, savedId: s.id, photo: s.photo || null });
+    if (typeof showSavedPhoto === "function") showSavedPhoto(s.photo);
     document.querySelectorAll(".sym").forEach(b => b.setAttribute("aria-pressed", state.sel.includes(b.dataset.id)));
     const first = SYMPTOMS.findIndex(x => x.id === known[0]);
     setSlide(first < 0 ? 0 : first);

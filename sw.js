@@ -1,11 +1,12 @@
 /* Bench Bee service worker: makes the app work offline.
    When you change any file, bump VERSION so phones pick up the new version. */
-const VERSION = "bench-bee-v16";
+const VERSION = "bench-bee-v18";
 const APP_FILES = [
   "./",
   "index.html",
   "styles.css",
   "app.js",
+  "photo.js",
   "data/western-blot.js",
   "manifest.webmanifest",
   "icons/favicon.svg",
