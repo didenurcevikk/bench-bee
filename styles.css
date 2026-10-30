@@ -310,3 +310,16 @@ textarea.copybox { width: 100%; min-height: 140px; font-family: var(--mono); fon
 .sf-photo img { width: 100%; max-height: 220px; object-fit: contain; border-radius: 8px; background: var(--bg); }
 .sf-actions { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
 .sf-actions label { cursor: pointer; }
+
+/* ---------- saved list tools ---------- */
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.saved-tools { display: grid; gap: 12px; }
+.tech-tabs { display: flex; gap: 6px; flex-wrap: wrap; }
+.tech-tab { display: inline-flex; align-items: center; gap: 6px; padding: 7px 12px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); cursor: pointer; font-size: 14px; font-weight: 500; }
+.tech-tab span { font-family: var(--mono); font-size: 11.5px; color: var(--muted); }
+.tech-tab[aria-selected="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.tech-tab[aria-selected="true"] span { color: var(--bg); opacity: .7; }
+.saved-filters { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; }
+.saved-filters input, .saved-filters select { font: inherit; font-size: 16px; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); min-width: 0; }
+.saved-count { font-family: var(--mono); font-size: 12px; color: var(--muted); }
+.chip.tech { background: var(--ink); color: var(--bg); }

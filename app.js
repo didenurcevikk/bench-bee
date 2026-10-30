@@ -569,18 +569,53 @@ function paintSavedCount() {
   $("#savedCount").textContent = n ? String(n) : "";
 }
 
+const TECHS = [
+  { id: "western-blot", name: "Western blot" },
+  { id: "qpcr", name: "qPCR" },
+  { id: "cell-culture", name: "Cell culture" }
+];
+const savedUI = { tech: "all", q: "", sort: "new" };
+try { Object.assign(savedUI, JSON.parse(localStorage.getItem("benchbee-saved-ui") || "{}"), { q: "" }); } catch (e) {}
+const rememberSavedUI = () => { try { localStorage.setItem("benchbee-saved-ui", JSON.stringify({ tech: savedUI.tech, sort: savedUI.sort })); } catch (e) {} };
+
+// Everything a search can match: name, note, fix, top cause, pictures picked and answers given.
+function searchText(s) {
+  const names = s.sel.map(id => (SYMPTOMS.find(x => x.id === id) || {}).name || "");
+  const answers = (s.order || []).map(q => Q[q] ? `${Q[q].q} ${s.answers[q] < 0 ? "none of these fit" : (Q[q].opts[s.answers[q]] || {}).l || ""}` : "");
+  return [s.name, s.note, s.fix, s.top, ...names, ...answers].join(" ").toLowerCase();
+}
+
 function renderSaved() {
-  const list = loadSaved();
-  if (!list.length) {
+  const all = loadSaved();
+  const techOf = s => s.tech || "western-blot";
+  $("#techTabs").innerHTML = [{ id: "all", name: "All" }, ...TECHS].map(t => {
+    const n = t.id === "all" ? all.length : all.filter(s => techOf(s) === t.id).length;
+    return `<button type="button" role="tab" class="tech-tab" data-tech="${t.id}" aria-selected="${savedUI.tech === t.id}">${t.name}<span>${n}</span></button>`;
+  }).join("");
+  document.querySelectorAll(".tech-tab").forEach(b => b.addEventListener("click", () => { savedUI.tech = b.dataset.tech; rememberSavedUI(); renderSaved(); }));
+  $("#savedSort").value = savedUI.sort;
+
+  const words = savedUI.q.toLowerCase().split(/\s+/).filter(Boolean);
+  let list = all.filter(s => savedUI.tech === "all" || techOf(s) === savedUI.tech)
+    .filter(s => { const t = searchText(s); return words.every(w => t.includes(w)); });
+  list.sort((x, y) => savedUI.sort === "az" ? x.name.localeCompare(y.name) : savedUI.sort === "old" ? x.date.localeCompare(y.date) : y.date.localeCompare(x.date));
+
+  if (!all.length) {
     $("#savedList").innerHTML = `<div class="empty">Nothing saved yet. When you've worked through a blot, tap Save at the bottom of the results to keep it here.</div>`;
     return;
   }
-  $("#savedList").innerHTML = list.map(s => {
+  if (!list.length) {
+    const techName = (TECHS.find(t => t.id === savedUI.tech) || {}).name;
+    $("#savedList").innerHTML = `<div class="empty">${words.length ? `Nothing matches “${esc(savedUI.q)}”${techName ? ` in ${techName}` : ""}.` : `No ${techName} troubleshoots saved yet.`}</div>`;
+    return;
+  }
+  $("#savedList").innerHTML = `<p class="saved-count">${list.length} of ${all.length}</p>` + list.map(s => {
     const names = s.sel.map(id => (SYMPTOMS.find(x => x.id === id) || {}).name).filter(Boolean);
+    const tech = (TECHS.find(t => t.id === techOf(s)) || TECHS[0]).name;
     return `<article class="saved-item" data-id="${s.id}">
       ${s.photo ? `<img class="si-photo" src="${s.photo}" alt="Blot photo saved with this troubleshoot">` : ""}
       <div class="si-top"><h3>${esc(s.name)}</h3><span class="si-date">${fmtDate(s.date)}</span></div>
-      <div class="chosen">${names.map(n => `<span class="chip">${n}</span>`).join("")}</div>
+      <div class="chosen"><span class="chip tech">${tech}</span>${names.map(n => `<span class="chip">${n}</span>`).join("")}</div>
       <p class="si-lead">${s.top ? `Top cause: <b>${esc(s.top)}</b> · ` : ""}${s.order.length} answer${s.order.length === 1 ? "" : "s"}</p>
       ${s.note ? `<p class="si-note">${esc(s.note)}</p>` : ""}
       ${s.fix ? `<p class="si-fix"><span class="label">Fixed by</span>${esc(s.fix)}</p>` : `<p class="si-open">Not solved yet. Open it and update when you find the fix.</p>`}
@@ -598,8 +633,9 @@ function renderSaved() {
     });
   });
 }
+$("#savedSearch").addEventListener("input", e => { savedUI.q = e.target.value; renderSaved(); });
+$("#savedSort").addEventListener("change", e => { savedUI.sort = e.target.value; rememberSavedUI(); renderSaved(); });
 
-let pendingRestore = null;
 function openSaved(id) {
   const s = loadSaved().find(x => x.id === id);
   if (!s) return;
