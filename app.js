@@ -433,11 +433,13 @@ function renderCauses() {
         ${multi && c.fits.length > 1 ? `<span></span><span class="fits">Explains ${c.fits.join(" + ")}</span>` : ""}
       </summary>
       <div class="body">
-        <p class="verdict">${verdict(c)}</p>
         <p class="why">${c.why}</p>
-        ${c.trace.length ? `<div class="trace"><span class="label">What pointed here</span><ul>${c.trace.map(traceLine).join("")}</ul></div>` : ""}
         <div class="check"><span class="label">Check first</span>${c.check}</div>
-        <ul class="fix">${c.fix.map(f => `<li>${f}</li>`).join("")}</ul>
+        <div class="howfix"><span class="label">How to fix</span><ul class="fix">${c.fix.map(f => `<li>${f}</li>`).join("")}</ul></div>
+        <details class="whybox"><summary>Why is this ${i === 0 ? "at the top" : "here"}?</summary>
+          <p class="verdict">${verdict(c)}</p>
+          ${c.trace.length ? `<ul class="trace">${c.trace.map(traceLine).join("")}</ul>` : ""}
+        </details>
       </div>
     </details></li>`).join("");
   // The top cause is always open; the others open only when tapped.
