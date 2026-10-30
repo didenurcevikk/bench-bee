@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 60"><rect width="60" height="60" fill="#221D19"/><g transform="translate(5.5 5.5) scale(0.817)"><polygon points="30,2 55,16 55,44 30,58 5,44 5,16" fill="#FBEEC8"/><clipPath id="bb"><ellipse cx="26" cy="34" rx="14" ry="10.5"/></clipPath>
-<path d="M41 36 q3 -3 6 0 t5 0" fill="none" stroke="#221D19" stroke-width="1.6" stroke-linecap="round" stroke-dasharray="0.1 3"/>
+<path d="M41 35.3 q3 -3 6 0 t5 0" fill="none" stroke="#221D19" stroke-width="1.6" stroke-linecap="round" stroke-dasharray="0.1 3"/>
 <ellipse cx="23.5" cy="21.5" rx="4.6" ry="6.2" transform="rotate(-30 23.5 21.5)" fill="#FFFFFF" fill-opacity=".7" stroke="#221D19" stroke-width="1.3"/>
 <ellipse cx="29.5" cy="21.5" rx="6.2" ry="4.2" transform="rotate(-22 29.5 21.5)" fill="#FFFFFF" stroke="#221D19" stroke-width="1.3"/>
 <g clip-path="url(#bb)"><rect x="10" y="22" width="32" height="24" fill="#F2B400"/><rect x="10" y="22" width="9.5" height="24" fill="#221D19"/><rect x="24.5" y="22" width="3.8" height="24" fill="#221D19"/><rect x="32" y="22" width="3.8" height="24" fill="#221D19"/></g>
