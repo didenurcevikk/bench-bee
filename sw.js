@@ -1,6 +1,6 @@
 /* Bench Bee service worker: makes the app work offline.
    When you change any file, bump VERSION so phones pick up the new version. */
-const VERSION = "bench-bee-v24";
+const VERSION = "bench-bee-v25";
 const APP_FILES = [
   "./",
   "index.html",
@@ -47,7 +47,7 @@ self.addEventListener("fetch", event => {
   // App files: try the network first so updates show up, fall back to the saved copy offline.
   if (url.origin === location.origin) {
     event.respondWith(
-      fetch(req)
+      fetch(req.url, { cache: "no-cache" }) // always ask GitHub whether the file changed, so updates show straight away
         .then(res => { const copy = res.clone(); caches.open(VERSION).then(c => c.put(req, copy)); return res; })
         .catch(() => caches.match(req).then(r => r || caches.match("index.html")))
     );
