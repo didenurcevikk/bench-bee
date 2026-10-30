@@ -292,7 +292,7 @@ function nextQuestion() {
 
 // Clear every selection and answer, and go back to the first picture.
 function resetAll() {
-  Object.assign(state, { sel: [], answers: {}, order: [], skipped: new Set(), forceNext: null, keepGoing: false, showAll: false });
+  Object.assign(state, { sel: [], answers: {}, order: [], skipped: new Set(), forceNext: null, keepGoing: false, showAll: false, savedId: null });
   userOpen.clear();
   document.querySelectorAll(".sym").forEach(b => b.setAttribute("aria-pressed", "false"));
   setSlide(0);
@@ -317,15 +317,18 @@ function renderBench() {
         <div id="more"></div>
         <div id="ruled"></div>
         <div class="actions">
-          <button class="btn" type="button" id="copy">Copy for lab notebook</button>
+          <button class="btn save" type="button" id="save">${state.savedId ? "Update saved" : "Save"}</button>
+          <button class="btn ghost" type="button" id="copy">Copy for lab notebook</button>
           <button class="btn ghost" type="button" id="reset">Start over</button>
           <span class="toast" id="toast" role="status"></span>
         </div>
+        <div id="saveform"></div>
         <div id="copyfall"></div>
       </div>
     </div>`;
   $("#reset").addEventListener("click", () => { resetAll(); $("#s1").scrollIntoView({ behavior: "smooth" }); });
   $("#copy").addEventListener("click", copySummary);
+  $("#save").addEventListener("click", openSaveForm);
   renderQuestion(); renderHistory(); renderCauses();
 }
 
@@ -468,6 +471,105 @@ function copySummary() {
 renderGrid();
 renderBench();
 
+/* ---------- saved troubleshoots (kept in this browser only) ---------- */
+const SAVED_KEY = "benchbee-saved";
+function loadSaved() { try { return JSON.parse(localStorage.getItem(SAVED_KEY) || "[]"); } catch (e) { return []; } }
+function storeSaved(list) { try { localStorage.setItem(SAVED_KEY, JSON.stringify(list)); return true; } catch (e) { return false; } }
+const esc = s => String(s).replace(/[&<>"]/g, ch => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[ch]));
+const fmtDate = iso => new Date(iso).toLocaleString(undefined, { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" });
+
+function openSaveForm() {
+  const existing = loadSaved().find(s => s.id === state.savedId);
+  const name = existing ? existing.name : `${selected().map(s => s.name).join(" + ")} · ${new Date().toLocaleDateString(undefined, { day: "numeric", month: "short" })}`;
+  $("#saveform").innerHTML = `
+    <form class="saveform" id="saveFormEl">
+      <label for="saveName">Name</label>
+      <input id="saveName" type="text" maxlength="80" value="${esc(name)}">
+      <label for="saveNote">Note <span>(optional)</span></label>
+      <textarea id="saveNote" rows="3" maxlength="600" placeholder="What did you try, what happened next?">${existing ? esc(existing.note || "") : ""}</textarea>
+      <div class="actions"><button class="btn save" type="submit">${existing ? "Update" : "Save"}</button><button class="btn ghost" type="button" id="saveCancel">Cancel</button></div>
+    </form>`;
+  $("#saveName").focus();
+  $("#saveCancel").addEventListener("click", () => { $("#saveform").innerHTML = ""; });
+  $("#saveFormEl").addEventListener("submit", e => {
+    e.preventDefault();
+    const { live } = evaluate();
+    const entry = {
+      id: state.savedId || String(Date.now()),
+      date: new Date().toISOString(),
+      name: $("#saveName").value.trim() || name,
+      note: $("#saveNote").value.trim(),
+      tech: "western-blot",
+      sel: [...state.sel],
+      answers: { ...state.answers },
+      order: [...state.order],
+      top: live[0] ? live[0].t : ""
+    };
+    const list = loadSaved().filter(s => s.id !== entry.id);
+    list.unshift(entry);
+    if (!storeSaved(list)) { $("#toast").textContent = "This browser won't let the app save. Try copying for your notebook instead."; return; }
+    state.savedId = entry.id;
+    $("#saveform").innerHTML = "";
+    $("#save").textContent = "Update saved";
+    $("#toast").textContent = "Saved. Find it under Saved troubleshoots.";
+    paintSavedCount();
+  });
+}
+
+function paintSavedCount() {
+  const n = loadSaved().length;
+  $("#savedCount").textContent = n ? String(n) : "";
+}
+
+function renderSaved() {
+  const list = loadSaved();
+  if (!list.length) {
+    $("#savedList").innerHTML = `<div class="empty">Nothing saved yet. When you've worked through a blot, tap Save at the bottom of the results to keep it here.</div>`;
+    return;
+  }
+  $("#savedList").innerHTML = list.map(s => {
+    const names = s.sel.map(id => (SYMPTOMS.find(x => x.id === id) || {}).name).filter(Boolean);
+    return `<article class="saved-item" data-id="${s.id}">
+      <div class="si-top"><h3>${esc(s.name)}</h3><span class="si-date">${fmtDate(s.date)}</span></div>
+      <div class="chosen">${names.map(n => `<span class="chip">${n}</span>`).join("")}</div>
+      <p class="si-lead">${s.top ? `Top cause: <b>${esc(s.top)}</b> · ` : ""}${s.order.length} answer${s.order.length === 1 ? "" : "s"}</p>
+      ${s.note ? `<p class="si-note">${esc(s.note)}</p>` : ""}
+      <div class="si-actions"><button class="btn save" type="button" data-act="open">Open</button><button class="linkbtn" type="button" data-act="del">Delete</button></div>
+    </article>`;
+  }).join("");
+  document.querySelectorAll(".saved-item").forEach(el => {
+    const id = el.dataset.id;
+    el.querySelector('[data-act="open"]').addEventListener("click", () => openSaved(id));
+    el.querySelector('[data-act="del"]').addEventListener("click", e => {
+      const acts = e.target.parentElement;
+      acts.innerHTML = `<span class="si-confirm">Delete this one?</span><button class="btn ghost" type="button" data-act="yes">Delete</button><button class="linkbtn" type="button" data-act="no">Keep</button>`;
+      acts.querySelector('[data-act="yes"]').addEventListener("click", () => { storeSaved(loadSaved().filter(s => s.id !== id)); paintSavedCount(); renderSaved(); });
+      acts.querySelector('[data-act="no"]').addEventListener("click", renderSaved);
+    });
+  });
+}
+
+let pendingRestore = null;
+function openSaved(id) {
+  const s = loadSaved().find(x => x.id === id);
+  if (!s) return;
+  pendingRestore = s; // restored by route() once the app view is showing
+  location.hash = "western-blot";
+}
+function restoreSaved(s) {
+  {
+    const known = s.sel.filter(sid => SYMPTOMS.some(x => x.id === sid));
+    const order = s.order.filter(q => Q[q] && s.answers[q] !== undefined);
+    Object.assign(state, { sel: known, answers: Object.fromEntries(order.map(q => [q, s.answers[q]])), order, skipped: new Set(), forceNext: null, keepGoing: false, showAll: false, savedId: s.id });
+    document.querySelectorAll(".sym").forEach(b => b.setAttribute("aria-pressed", state.sel.includes(b.dataset.id)));
+    const first = SYMPTOMS.findIndex(x => x.id === known[0]);
+    setSlide(first < 0 ? 0 : first);
+    renderBench();
+    $("#benchSec").scrollIntoView();
+  }
+}
+$("#go-saved").addEventListener("click", () => { location.hash = "saved"; });
+
 /* ---------- picture view on phones: one at a time, or all at once ---------- */
 const VIEW_KEY = "benchbee-view";
 const ICON_ALL = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.5"/></svg>';
@@ -512,10 +614,14 @@ paintThemeButtons();
 
 /* ---------- welcome screen and app view ---------- */
 function route() {
-  const inApp = location.hash === "#western-blot";
-  if (!inApp) resetAll(); // going back to the start screen begins a fresh session
-  $("#welcome").hidden = inApp;
+  const inApp = location.hash === "#western-blot", inSaved = location.hash === "#saved";
+  if (!inApp) resetAll(); // leaving the app view begins a fresh session
+  $("#welcome").hidden = inApp || inSaved;
   $(".wrap").hidden = !inApp;
+  $("#savedView").hidden = !inSaved;
+  if (inSaved) renderSaved();
+  paintSavedCount();
+  if (inApp && pendingRestore) { const s = pendingRestore; pendingRestore = null; restoreSaved(s); return; }
   window.scrollTo(0, 0);
 }
 $("#go-wb").addEventListener("click", () => { location.hash = "western-blot"; });

@@ -4,6 +4,8 @@ A Western blot troubleshooting app for people at the bench. Pick the blot pictur
 
 It works on phones and laptops, can be added to a phone's home screen like a normal app, and keeps working without internet once it has been opened.
 
+You can save a troubleshoot with a name and a note, and reopen it later from Saved troubleshoots. Saved items stay in the browser on that device; nothing is sent anywhere.
+
 ## What's in the folder
 
 | File | What it does |

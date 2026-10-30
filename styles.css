@@ -233,3 +233,28 @@ textarea.copybox { width: 100%; min-height: 140px; font-family: var(--mono); fon
   .grid-view .sym .pickhint { font-size: 11px; }
   .grid-view .carnav { display: none; }
 }
+
+/* ---------- saved troubleshoots ---------- */
+.btn.save { background: var(--accent-fill); border-color: var(--accent-fill); color: var(--accent-ink); }
+.saveform { display: grid; gap: 8px; padding: 16px; border: 1px solid var(--line); border-radius: var(--r); background: var(--surface); }
+.saveform label { font-size: 13px; font-weight: 500; }
+.saveform label span { color: var(--muted); font-weight: 400; }
+.saveform input, .saveform textarea { font: inherit; font-size: 16px; padding: 10px 12px; border-radius: 8px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); width: 100%; }
+.saveform textarea { resize: vertical; }
+.saved-link { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 12px 16px; border-radius: 14px; border: 1px dashed var(--line); background: transparent; cursor: pointer; font-size: 15px; font-weight: 500; }
+.saved-link svg { width: 18px; height: 18px; }
+.saved-link .count:not(:empty) { font-family: var(--mono); font-size: 12px; padding: 2px 8px; border-radius: 999px; background: var(--accent-fill); color: var(--accent-ink); }
+.icon-btn { margin-left: auto; width: 40px; height: 40px; flex: none; border-radius: 50%; border: 1px solid var(--line); background: var(--surface); color: var(--ink); display: grid; place-items: center; }
+.icon-btn svg { width: 19px; height: 19px; }
+.appbar .icon-btn + .theme-btn { margin-left: 0; }
+.wrap-saved { max-width: 760px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 28px 56px; display: grid; gap: 24px; }
+.saved-list { display: grid; gap: 12px; }
+.saved-item { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 16px; display: grid; gap: 10px; }
+.si-top { display: flex; justify-content: space-between; align-items: baseline; gap: 6px 12px; flex-wrap: wrap; }
+.si-top h3 { font-size: 18px; font-weight: 600; min-width: 0; overflow-wrap: anywhere; }
+.si-date { font-family: var(--mono); font-size: 12px; color: var(--muted); }
+.si-lead { font-size: 14px; color: var(--muted); }
+.si-lead b { color: var(--ink); font-weight: 600; }
+.si-note { font-size: 14px; padding: 8px 12px; border-left: 3px solid var(--accent-fill); background: var(--bg); white-space: pre-wrap; overflow-wrap: anywhere; }
+.si-actions { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.si-confirm { font-size: 14px; font-weight: 500; }
