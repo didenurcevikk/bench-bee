@@ -197,10 +197,11 @@ const Q = {
     { l: "New samples or cells", e: { target_low: 3, degradation: 2, overload: 1, underload: 1, unequal_load: 1, dna: 1, salt: 1, lc_biology: 1 } },
     { l: "Gel or transfer setup", e: { transfer_fail: 3, contact: 2, bubbles: 1, heat: 2, large_transfer: 1, wells_gel: 1, running_buffer: 1 } },
     { l: "Nothing I know of", e: {} }] },
-  lanes: { q: "Is the problem in every lane, or only some?", opts: [
-    { l: "Every lane, loading control too", e: { transfer_fail: 2, detect_fail: 2, expo_high: 1, ab_high: 1, contact: 1, block_low: 1, wash_low: 1, substrate_old: 1, unequal_load: -2, target_low: -1 } },
-    { l: "Every lane, loading control is fine", e: { target_low: 2, primary_inactive: 2, primary_dilute: 2, detect_fail: -3, transfer_fail: -2 } },
-    { l: "Only some lanes", e: { target_low: 2, unequal_load: 3, underload: 2, degradation: 2, salt: 2, overload: 1, detect_fail: "out", transfer_fail: -3 } }] },
+  lanes: { q: "Is the problem in every lane, or only some?", tip: "If you cut the membrane and probed the strips with different antibodies, pick the last option.", opts: [
+    { l: "Every lane, loading control too", e: { transfer_fail: 2, detect_fail: 2, expo_high: 2, ab_high: 2, contact: 1, block_low: 1, wash_low: 1, substrate_old: 1, substrate_used: 1, unequal_load: -2, target_low: -1, overload: -1 } },
+    { l: "Every lane, loading control is fine", e: { target_low: 2, primary_inactive: 2, primary_dilute: 2, ab_high: 1, detect_fail: -3, transfer_fail: -2 } },
+    { l: "Only some lanes", e: { target_low: 2, unequal_load: 3, underload: 2, degradation: 2, salt: 2, overload: 3, quant_range: 1, detect_fail: "out", transfer_fail: -3, expo_high: -1 } },
+    { l: "Strips look different (membrane was cut)", e: { ab_high: 2, primary_dilute: 1, primary_inactive: 1, nonspec_primary: 1, target_low: 1, overload: 1, quant_range: 1, detect_fail: -2, transfer_fail: -1 } }] },
   ladder: { q: "Is the prestained ladder visible on the membrane?", opts: [
     { l: "Yes", e: { transfer_fail: -2 } }, { l: "No", e: { transfer_fail: 4 } }, { l: "Didn't check", e: {} }] },
   ponceau_none: { q: "Did Ponceau S show protein in your sample lanes?", tip: "Ponceau tells you whether protein reached the membrane, before any antibody is involved.", opts: [
@@ -302,7 +303,7 @@ const SYMPTOMS = [
     causes: { primary_dilute: 1.6, target_low: 1.5, large_transfer: 1, underload: 1, substrate_old: 1, block_mask: 0.8, stripped: 0.6, transfer_fail: 0.6 },
     qs: ["lc_strong", "large_target", "primary_time", "substrate_age", "stripped_q"] },
   { id: "saturated", name: "Saturated signal", hint: "Pink or red pixels on the imager",
-    causes: { expo_high: 2, ab_high: 1.5, overload: 1.5, quant_range: 1, substrate_used: 0.6 },
+    causes: { expo_high: 2, ab_high: 1.5, overload: 1.5, quant_range: 1, unequal_load: 0.6, substrate_used: 0.6 },
     qs: ["auto_exp", "load_amount", "rim", "need_quant"] },
   { id: "background", name: "Dark background", hint: "The whole membrane is grey or black",
     causes: { ab_high: 2, block_low: 1.8, wash_low: 1.5, expo_high: 1.2, dry: 0.8, buffers_contam: 0.5, phospho_milk: 0.4 },

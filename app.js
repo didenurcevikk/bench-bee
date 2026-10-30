@@ -248,6 +248,7 @@ function evaluate() {
     (fits[cid] = fits[cid] || []).push(sy.name);
   }));
   validAnswers().forEach(qid => {
+    if (state.answers[qid] < 0) return; // "None of these fit" changes nothing
     const o = Q[qid].opts[state.answers[qid]];
     Object.entries(o.e).forEach(([cid, v]) => {
       if (!(cid in sc)) return;
@@ -333,6 +334,8 @@ function renderBench() {
   renderQuestion(); renderHistory(); renderCauses();
 }
 
+const ansLabel = qid => state.answers[qid] < 0 ? "None of these fit" : Q[qid].opts[state.answers[qid]].l;
+
 function answer(qid, oi) {
   state.answers[qid] = oi;
   state.order = state.order.filter(q => q !== qid).concat(qid);
@@ -362,7 +365,8 @@ function renderQuestion() {
       <span class="label">Question ${n}</span>
       <p class="qtext">${q.q}</p>
       ${q.tip ? `<p class="qtip">${q.tip}</p>` : ""}
-      <div class="answers">${q.opts.map((o, oi) => `<button class="ans" type="button" data-o="${oi}">${o.l}</button>`).join("")}</div>
+      <div class="answers">${q.opts.map((o, oi) => `<button class="ans" type="button" data-o="${oi}">${o.l}</button>`).join("")}
+        <button class="ans nofit" type="button" data-o="-1">None of these fit</button></div>
       <div class="qnav">
         <button class="linkbtn" type="button" id="back" ${state.order.length ? "" : "disabled"}>← Back</button>
         <button class="linkbtn" type="button" id="skip">Skip, I don't know</button>
@@ -379,7 +383,7 @@ function renderQuestion() {
 function renderHistory() {
   const done = validAnswers();
   $("#history").innerHTML = done.length ? `<span class="label">Your answers</span>
-    <ol class="hist">${done.map(qid => `<li><span class="hq">${Q[qid].q}</span><span class="ha">${Q[qid].opts[state.answers[qid]].l}</span>
+    <ol class="hist">${done.map(qid => `<li><span class="hq">${Q[qid].q}</span><span class="ha">${ansLabel(qid)}</span>
       <button class="linkbtn" type="button" data-q="${qid}">Change</button></li>`).join("")}</ol>` : "";
   document.querySelectorAll(".hist .linkbtn").forEach(b => b.addEventListener("click", () => {
     const qid = b.dataset.q;
@@ -451,7 +455,7 @@ function renderCauses() {
 
 function copySummary() {
   const { live, ruled } = evaluate();
-  const ans = validAnswers().map(q => `- ${Q[q].q} ${Q[q].opts[state.answers[q]].l}`);
+  const ans = validAnswers().map(q => `- ${Q[q].q} ${ansLabel(q)}`);
   const txt = [
     `Western blot troubleshooting: ${selected().map(s => s.name).join(", ")}`,
     `Date: ${new Date().toLocaleDateString()}`,
@@ -488,6 +492,8 @@ function openSaveForm() {
       <input id="saveName" type="text" maxlength="80" value="${esc(name)}">
       <label for="saveNote">Note <span>(optional)</span></label>
       <textarea id="saveNote" rows="3" maxlength="600" placeholder="What did you try, what happened next?">${existing ? esc(existing.note || "") : ""}</textarea>
+      <label for="saveFix">What actually fixed it? <span>(fill in later if you don't know yet)</span></label>
+      <input id="saveFix" type="text" maxlength="200" placeholder="e.g. Fresh ECL, or diluted the secondary 1:10,000" value="${existing ? esc(existing.fix || "") : ""}">
       <div class="actions"><button class="btn save" type="submit">${existing ? "Update" : "Save"}</button><button class="btn ghost" type="button" id="saveCancel">Cancel</button></div>
     </form>`;
   $("#saveName").focus();
@@ -500,6 +506,7 @@ function openSaveForm() {
       date: new Date().toISOString(),
       name: $("#saveName").value.trim() || name,
       note: $("#saveNote").value.trim(),
+      fix: $("#saveFix").value.trim(),
       tech: "western-blot",
       sel: [...state.sel],
       answers: { ...state.answers },
@@ -537,6 +544,7 @@ function renderSaved() {
       <div class="chosen">${names.map(n => `<span class="chip">${n}</span>`).join("")}</div>
       <p class="si-lead">${s.top ? `Top cause: <b>${esc(s.top)}</b> · ` : ""}${s.order.length} answer${s.order.length === 1 ? "" : "s"}</p>
       ${s.note ? `<p class="si-note">${esc(s.note)}</p>` : ""}
+      ${s.fix ? `<p class="si-fix"><span class="label">Fixed by</span>${esc(s.fix)}</p>` : `<p class="si-open">Not solved yet. Open it and update when you find the fix.</p>`}
       <div class="si-actions"><button class="btn save" type="button" data-act="open">Open</button><button class="linkbtn" type="button" data-act="del">Delete</button></div>
     </article>`;
   }).join("");

@@ -285,3 +285,7 @@ textarea.copybox { width: 100%; min-height: 140px; font-family: var(--mono); fon
 .pb-saved img { width: 120px; max-width: 40%; border-radius: 8px; flex: none; }
 .si-photo { width: 100%; max-height: 180px; object-fit: cover; border-radius: 8px; }
 .pb-findings .maybe { font-style: normal; font-family: var(--mono); font-size: 11px; text-transform: uppercase; letter-spacing: .05em; padding: 1px 6px; border-radius: 999px; background: var(--chip); color: var(--muted); }
+.ans.nofit { background: transparent; border-style: dashed; color: var(--muted); font-weight: 400; }
+.si-fix { font-size: 14px; padding: 8px 12px; border-radius: 8px; background: var(--accent-soft); display: grid; gap: 2px; overflow-wrap: anywhere; }
+.si-fix .label { color: var(--accent); }
+.si-open { font-size: 13px; color: var(--muted); font-style: italic; }
